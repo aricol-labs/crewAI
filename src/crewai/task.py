@@ -3,6 +3,7 @@ import re
 import uuid
 from concurrent.futures import Future, ThreadPoolExecutor
 from copy import copy
+from hashlib import md5
 from typing import Any, Dict, List, Optional, Type, Union
 
 from langchain_openai import ChatOpenAI
@@ -160,6 +161,11 @@ class Task(BaseModel):
                 {},
             )
         return self
+
+    @property
+    def key(self) -> str:
+        description = self._original_description or self.description
+        return md5(description.encode()).hexdigest()
 
     def wait_for_completion(self) -> str | BaseModel:
         """Wait for asynchronous task completion and return the output."""
